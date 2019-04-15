@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS document;
+CREATE TABLE document(id BIGINT AUTO_INCREMENT PRIMARY KEY, unique_number VARCHAR(127), description VARCHAR(127), deleted BOOLEAN DEFAULT false);

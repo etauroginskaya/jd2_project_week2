@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.gmail.etauroginskaya</groupId>
+    <artifactId>jd2_project_week2</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>jd2_project_week2</name>
+    <modules>
+        <module>web-module</module>
+        <module>service-module</module>
+        <module>repository-module</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <spring.version>5.1.6.RELEASE</spring.version>
+        <repository-module.version>1.0-SNAPSHOT</repository-module.version>
+        <service-module.version>1.0-SNAPSHOT</service-module.version>
+        <web-module.version>1.0-SNAPSHOT</web-module.version>
+        <junit.version>4.11</junit.version>
+        <mockito.version>1.10.19</mockito.version>
+        <log4j2.version>2.11.2</log4j2.version>
+        <mysql.connector.version>8.0.15</mysql.connector.version>
+        <spring.aop.version>5.1.6.RELEASE</spring.aop.version>
+        <aspect.version>1.9.3</aspect.version>
+    </properties>
+</project>
