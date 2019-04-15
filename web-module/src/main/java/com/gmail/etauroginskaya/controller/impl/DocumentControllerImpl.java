@@ -18,12 +18,13 @@ public class DocumentControllerImpl implements DocumentController {
     private static final Logger logger = LogManager.getLogger(DocumentControllerImpl.class);
 
     private DocumentService documentService;
-    @Autowired
     private ValidatorService validatorService;
+
     private Map<String, String> validateResult;
 
-    public DocumentControllerImpl(DocumentService documentService) {
+    public DocumentControllerImpl(DocumentService documentService, ValidatorService validatorService) {
         this.documentService = documentService;
+        this.validatorService = validatorService;
     }
 
     @Override
