@@ -3,6 +3,7 @@ package com.gmail.etauroginskaya.repository.impl;
 import com.gmail.etauroginskaya.repository.DocumentRepository;
 import com.gmail.etauroginskaya.repository.connection.ConnectionHandler;
 import com.gmail.etauroginskaya.repository.exception.DatabaseException;
+import com.gmail.etauroginskaya.repository.exception.DocumentNotFoundException;
 import com.gmail.etauroginskaya.repository.model.Document;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +29,10 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
     @Override
     public Document addDocument(Document document) {
-        String sql = "INSERT INTO document(unique_number, description) VALUES(?, ?)";
+        Document saveDocument = new Document();
         try (Connection connection = connectionHandler.getConnection()) {
             connection.setAutoCommit(false);
+            String sql = "INSERT INTO document(unique_number, description) VALUES(?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, document.getUnique_number());
                 statement.setString(2, document.getDescription());
@@ -41,29 +43,33 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                 }
                 try (ResultSet rs = statement.getGeneratedKeys()) {
                     if (rs.next()) {
-                        document.setId(rs.getLong(1));
+                        saveDocument.setId(rs.getLong(1));
                     } else {
                         logger.error("Creating document failed, no ID obtained.");
                         throw new DatabaseException("Creating document failed, no ID obtained.");
                     }
                 }
+                saveDocument.setDescription(document.getDescription());
+                saveDocument.setUnique_number(document.getUnique_number());
                 connection.commit();
+                return saveDocument;
             } catch (Exception e) {
                 connection.rollback();
+                logger.error(CONNECTION_ERROR_MESSAGE, e);
+                throw new DatabaseException(CONNECTION_ERROR_MESSAGE);
             }
         } catch (SQLException e) {
             logger.error(CONNECTION_ERROR_MESSAGE, e);
             throw new DatabaseException(CONNECTION_ERROR_MESSAGE);
         }
-        return document;
     }
 
     @Override
-    public Document getDocumentById(Long id) {
-        String sql = "SELECT * FROM document WHERE id = ?";
+    public Document getDocumentById(Long id) throws DocumentNotFoundException {
         Document document = new Document();
         try (Connection connection = connectionHandler.getConnection()) {
             connection.setAutoCommit(false);
+            String sql = "SELECT * FROM document WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setLong(1, id);
                 try (ResultSet rs = statement.executeQuery()) {
@@ -73,25 +79,27 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                         document.setDescription(rs.getString(3));
                         document.setDeleted(rs.getInt(4));
                     } else {
-                        logger.warn("Document no found.");
+                        logger.warn("Document with id (" + id + ") no found.");
                     }
                 }
                 connection.commit();
+                return document;
             } catch (Exception e) {
                 connection.rollback();
+                logger.error(CONNECTION_ERROR_MESSAGE, e);
+                throw new DatabaseException(CONNECTION_ERROR_MESSAGE);
             }
         } catch (SQLException e) {
             logger.error(CONNECTION_ERROR_MESSAGE, e);
             throw new DatabaseException(CONNECTION_ERROR_MESSAGE);
         }
-        return document;
     }
 
     @Override
     public void deleteDocumentById(Long id) {
-        String sql = "UPDATE document SET deleted = true WHERE id = ?";
         try (Connection connection = connectionHandler.getConnection()) {
             connection.setAutoCommit(false);
+            String sql = "UPDATE document SET deleted = true WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setLong(1, id);
                 int affectedRows = statement.executeUpdate();
@@ -102,6 +110,8 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                 connection.commit();
             } catch (Exception e) {
                 connection.rollback();
+                logger.error(CONNECTION_ERROR_MESSAGE, e);
+                throw new DatabaseException(CONNECTION_ERROR_MESSAGE);
             }
         } catch (SQLException e) {
             logger.error(CONNECTION_ERROR_MESSAGE, e);

@@ -1,12 +1,11 @@
 package com.gmail.etauroginskaya.controller.impl;
 
 import com.gmail.etauroginskaya.controller.DocumentController;
-import com.gmail.etauroginskaya.controller.util.ValidatorService;
+import com.gmail.etauroginskaya.controller.validator.ValidatorService;
 import com.gmail.etauroginskaya.service.DocumentService;
 import com.gmail.etauroginskaya.service.model.DocumentDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.util.HashMap;
@@ -20,8 +19,6 @@ public class DocumentControllerImpl implements DocumentController {
     private DocumentService documentService;
     private ValidatorService validatorService;
 
-    private Map<String, String> validateResult;
-
     public DocumentControllerImpl(DocumentService documentService, ValidatorService validatorService) {
         this.documentService = documentService;
         this.validatorService = validatorService;
@@ -29,7 +26,7 @@ public class DocumentControllerImpl implements DocumentController {
 
     @Override
     public DocumentDTO add(DocumentDTO documentDTO) {
-        validateResult = new HashMap<>();
+        Map<String, String> validateResult = new HashMap<>();
         validateResult = validatorService.validateDocumentDTO(validateResult, documentDTO);
         if (validateResult.isEmpty()) {
             return documentService.add(documentDTO);
@@ -40,7 +37,7 @@ public class DocumentControllerImpl implements DocumentController {
 
     @Override
     public DocumentDTO getDocumentById(Long id) {
-        validateResult = new HashMap<>();
+        Map<String, String> validateResult = new HashMap<>();
         validateResult = validatorService.validateDocumentId(validateResult, id);
         if (validateResult.isEmpty()) {
             return documentService.getDocumentById(id);
@@ -51,7 +48,7 @@ public class DocumentControllerImpl implements DocumentController {
 
     @Override
     public void delete(Long id) {
-        validateResult = new HashMap<>();
+        Map<String, String> validateResult = new HashMap<>();
         validateResult = validatorService.validateDocumentId(validateResult, id);
         if (validateResult.isEmpty()) {
             documentService.delete(id);

@@ -2,7 +2,7 @@ package com.gmail.etauroginskaya;
 
 import com.gmail.etauroginskaya.controller.DocumentController;
 import com.gmail.etauroginskaya.controller.impl.DocumentControllerImpl;
-import com.gmail.etauroginskaya.controller.util.ValidatorService;
+import com.gmail.etauroginskaya.controller.validator.ValidatorService;
 import com.gmail.etauroginskaya.service.DocumentService;
 import com.gmail.etauroginskaya.service.model.DocumentDTO;
 import org.junit.Assert;

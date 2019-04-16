@@ -1,6 +1,7 @@
-package com.gmail.etauroginskaya.service.converter;
+package com.gmail.etauroginskaya.service.converter.impl;
 
 import com.gmail.etauroginskaya.repository.model.Document;
+import com.gmail.etauroginskaya.service.converter.DocumentConverter;
 import com.gmail.etauroginskaya.service.model.DocumentDTO;
 import org.springframework.stereotype.Service;
 

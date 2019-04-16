@@ -36,10 +36,11 @@ public class DocumentServiceImpl implements com.gmail.etauroginskaya.service.Doc
 
     @Override
     public void delete(Long id) {
-        if (Objects.equals(documentRepository.getDocumentById(id).getDeleted(), 0)) {
+        Integer indicatorSoftDelete = documentRepository.getDocumentById(id).getDeleted();
+        if (Objects.equals(indicatorSoftDelete, 0)) {
             documentRepository.deleteDocumentById(id);
         } else {
-            logger.warn("Document with id " + id + " has been deleted previously.");
+            logger.warn("Document with id (" + id + ") has been deleted previously.");
         }
     }
 }

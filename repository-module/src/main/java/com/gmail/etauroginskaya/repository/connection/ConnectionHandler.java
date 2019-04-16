@@ -1,6 +1,9 @@
 package com.gmail.etauroginskaya.repository.connection;
 
+import com.gmail.etauroginskaya.repository.exception.DatabaseDriverException;
 import com.gmail.etauroginskaya.repository.exception.DatabaseException;
+import com.gmail.etauroginskaya.repository.exception.FileNotFoundException;
+import com.gmail.etauroginskaya.repository.exception.DocumentReadException;
 import com.gmail.etauroginskaya.repository.properties.DatabaseProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,13 +12,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 @Component
@@ -32,7 +33,8 @@ public class ConnectionHandler {
         try {
             Class.forName(databaseProperties.getDriver());
         } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage(), e);
+            logger.error("Driver not found", e);
+            throw new DatabaseDriverException("Driver not found");
         }
         this.databaseProperties = databaseProperties;
     }
@@ -53,28 +55,43 @@ public class ConnectionHandler {
 
     @PostConstruct
     private void createDatabaseTables() {
-        try (BufferedReader in = new BufferedReader(new FileReader(databaseProperties.getScript()))) {
-            String createTableQuery;
-            try (Connection connection = getConnection()) {
-                connection.setAutoCommit(false);
-                while ((createTableQuery = in.readLine()) != null) {
-                    try (PreparedStatement preparedStatement = connection.prepareStatement(createTableQuery)) {
-                        preparedStatement.executeUpdate();
-                        connection.commit();
-                    } catch (Exception e) {
-                        connection.rollback();
-                    }
+        String scriptName = getClass().getResource("/" + databaseProperties.getScript()).getPath();
+        List<String> listQueries = getListQueries(scriptName);
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (Statement statement = connection.createStatement()) {
+                for (String query : listQueries) {
+                    statement.addBatch(query);
                 }
-            } catch (SQLException e) {
+                statement.executeBatch();
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
                 logger.error(SQL_ERROR_MESSAGE, e);
                 throw new DatabaseException(SQL_ERROR_MESSAGE);
             }
-        } catch (FileNotFoundException e) {
-            logger.error(File_ERROR_MESSAGE, e);
-            throw new DatabaseException(File_ERROR_MESSAGE);
+        } catch (SQLException e) {
+            logger.error(SQL_ERROR_MESSAGE, e);
+            throw new DatabaseException(SQL_ERROR_MESSAGE);
+        }
+    }
+
+    List<String> getListQueries(String fileName) {
+        try {
+            try (BufferedReader in = new BufferedReader(new FileReader(fileName))) {
+                String line;
+                List<String> listQueries = new ArrayList<>();
+                while ((line = in.readLine()) != null) {
+                    listQueries.add(line);
+                }
+                return listQueries;
+            } catch (java.io.FileNotFoundException e) {
+                logger.error(File_ERROR_MESSAGE, e);
+                throw new FileNotFoundException(File_ERROR_MESSAGE);
+            }
         } catch (IOException e) {
             logger.error(IO_ERROR_MESSAGE, e);
-            throw new DatabaseException(IO_ERROR_MESSAGE);
+            throw new DocumentReadException(IO_ERROR_MESSAGE);
         }
     }
 }

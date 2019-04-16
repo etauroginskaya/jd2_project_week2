@@ -1,4 +1,4 @@
-package com.gmail.etauroginskaya.controller.util;
+package com.gmail.etauroginskaya.controller.validator;
 
 import com.gmail.etauroginskaya.service.model.DocumentDTO;
 
