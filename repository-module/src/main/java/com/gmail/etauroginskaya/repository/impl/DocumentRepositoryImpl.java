@@ -3,7 +3,6 @@ package com.gmail.etauroginskaya.repository.impl;
 import com.gmail.etauroginskaya.repository.DocumentRepository;
 import com.gmail.etauroginskaya.repository.connection.ConnectionHandler;
 import com.gmail.etauroginskaya.repository.exception.DatabaseException;
-import com.gmail.etauroginskaya.repository.exception.DocumentNotFoundException;
 import com.gmail.etauroginskaya.repository.model.Document;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,7 +64,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     }
 
     @Override
-    public Document getDocumentById(Long id) throws DocumentNotFoundException {
+    public Document getDocumentById(Long id){
         Document document = new Document();
         try (Connection connection = connectionHandler.getConnection()) {
             connection.setAutoCommit(false);
